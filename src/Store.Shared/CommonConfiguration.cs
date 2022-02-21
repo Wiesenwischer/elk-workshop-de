@@ -7,9 +7,15 @@ using NServiceBus.MessageMutator;
 public static class CommonConfiguration
 {
     public static void ApplyCommonConfiguration(this EndpointConfiguration endpointConfiguration,
-        Action<TransportExtensions<LearningTransport>> messageEndpointMappings = null)
+        Action<TransportExtensions<RabbitMQTransport>> messageEndpointMappings = null)
     {
-        var transport = endpointConfiguration.UseTransport<LearningTransport>();
+        var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
+        transport.ConnectionString("host=rabbitmq");
+        transport.UseConventionalRoutingTopology();
+
+        endpointConfiguration.UseSerialization<NewtonsoftSerializer>();
+        endpointConfiguration.EnableInstallers();
+
         messageEndpointMappings?.Invoke(transport);
         endpointConfiguration.UsePersistence<LearningPersistence>();
         var defaultKey = "2015-10";

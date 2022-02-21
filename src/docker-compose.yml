@@ -1,0 +1,43 @@
+version: '3.4'
+
+services:
+  rabbitmq:
+    image: "rabbitmq:3.8-management"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    healthcheck:
+      test: ["CMD-SHELL", "if rabbitmqctl status; then \nexit 0 \nfi \nexit 1"]
+      interval: 10s
+      retries: 5
+
+  store.contentmanagement:
+    image: ${DOCKER_REGISTRY-}storecontentmanagement
+    build:
+      context: .
+      dockerfile: Store.ContentManagement/Dockerfile
+
+  store.customerrelations:
+    image: ${DOCKER_REGISTRY-}storecustomerrelations
+    build:
+      context: .
+      dockerfile: Store.CustomerRelations/Dockerfile
+      
+  store.operations:
+    image: ${DOCKER_REGISTRY-}storeoperations
+    build:
+      context: .
+      dockerfile: Store.Operations/Dockerfile
+      
+  store.sales:
+    image: ${DOCKER_REGISTRY-}storesales
+    build:
+      context: .
+      dockerfile: Store.Sales/Dockerfile
+
+  store.ecommerce:
+    image: ${DOCKER_REGISTRY-}storeecommerce
+    build:
+      context: .
+      dockerfile: Store.ECommerce/Dockerfile
+

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Store.CustomerRelations": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

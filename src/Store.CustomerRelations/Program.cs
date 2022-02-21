@@ -1,19 +1,34 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using NServiceBus;
+using Store.Shared;
 
 class Program
 {
-    static async Task Main()
+    public static void Main(string[] args)
     {
-        Console.Title = "Samples.Store.CustomerRelations";
-        var endpointConfiguration = new EndpointConfiguration("Store.CustomerRelations");
-        endpointConfiguration.ApplyCommonConfiguration();
-        var endpointInstance = await Endpoint.Start(endpointConfiguration)
-            .ConfigureAwait(false);
-        Console.WriteLine("Press any key to exit");
-        Console.ReadKey();
-        await endpointInstance.Stop()
-            .ConfigureAwait(false);
+        CreateHostBuilder(args).Build().Run();
+    }
+
+    static IHostBuilder CreateHostBuilder(string[] args)
+    {
+        return Host.CreateDefaultBuilder(args)
+            .UseConsoleLifetime()
+            .ConfigureLogging(logging =>
+            {
+                logging.AddConsole();
+                logging.SetMinimumLevel(LogLevel.Information);
+            })
+            .UseNServiceBus(ctx =>
+            {
+                var endpointConfiguration = new EndpointConfiguration("Store.CustomerRelations");
+                endpointConfiguration.ApplyCommonConfiguration(transport =>
+                {
+                });
+
+                return endpointConfiguration;
+            })
+            .ConfigureServices(sp => sp.AddSingleton<IHostedService>(new ProceedIfRabbitMqIsAlive("rabbitmq")));
     }
 }
