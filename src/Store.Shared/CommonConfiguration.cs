@@ -3,6 +3,7 @@ using System.Text;
 using NServiceBus;
 using NServiceBus.Encryption.MessageProperty;
 using NServiceBus.MessageMutator;
+using Store.Shared;
 
 public static class CommonConfiguration
 {
@@ -15,6 +16,8 @@ public static class CommonConfiguration
 
         endpointConfiguration.UseSerialization<NewtonsoftSerializer>();
         endpointConfiguration.EnableInstallers();
+
+        endpointConfiguration.DefineCriticalErrorAction(CriticalErrorActions.RestartContainer);
 
         messageEndpointMappings?.Invoke(transport);
         endpointConfiguration.UsePersistence<LearningPersistence>();
