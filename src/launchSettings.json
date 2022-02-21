@@ -1,0 +1,22 @@
+{
+  "profiles": {
+    "Docker Compose": {
+      "commandName": "DockerCompose",
+      "composeLaunchAction": "LaunchBrowser",
+      "composeLaunchServiceName": "store.ecommerce",
+      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}",
+      "commandVersion": "1.0",
+      "serviceActions": {
+        "rabbitmq": "StartWithoutDebugging",
+        "store.contentmanagement": "StartDebugging",
+        "store.customerrelations": "StartDebugging",
+        "store.ecommerce": "StartDebugging",
+        "store.operations": "StartDebugging",
+        "store.sales": "StartDebugging",
+        "elasticsearch": "StartWithoutDebugging",
+        "kibana": "StartWithoutDebugging",
+        "logstash": "StartWithoutDebugging"
+      }
+    }
+  }
+}
