@@ -1,9 +1,11 @@
-﻿using System;
-using System.Text;
-using NServiceBus;
+﻿using NServiceBus;
 using NServiceBus.Encryption.MessageProperty;
 using NServiceBus.MessageMutator;
 using Store.Shared;
+using System;
+using System.Text;
+using Microsoft.Extensions.Configuration;
+using Serilog;
 
 public static class CommonConfiguration
 {
@@ -28,5 +30,18 @@ public static class CommonConfiguration
             key: ascii.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"));
         endpointConfiguration.EnableMessagePropertyEncryption(encryptionService);
         endpointConfiguration.RegisterMessageMutator(new DebugFlagMutator());
+    }
+
+    public static ILogger CreateSerilogLogger(this IConfiguration configuration, string applicationContext)
+    {
+        string logstashUrl = configuration["Serilog:LogstashUrl"];
+        return new LoggerConfiguration()
+            .MinimumLevel.Verbose()
+            .Enrich.WithProperty("ApplicationContext", applicationContext)
+            .Enrich.FromLogContext()
+            .WriteTo.Console()
+            .WriteTo.Http(string.IsNullOrWhiteSpace(logstashUrl) ? "http://logstash:8080" : logstashUrl)
+            .ReadFrom.Configuration(configuration)
+            .CreateLogger();
     }
 }
