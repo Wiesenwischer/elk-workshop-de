@@ -1,11 +1,24 @@
 version: '3.4'
 
 services:
+  elasticsearch:
+    build:
+      context: elk/elasticsearch/
+
+  logstash:
+    build:
+      context: elk/logstash/
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    build:
+      context: elk/kibana/
+    depends_on:
+      - elasticsearch
+
   rabbitmq:
     image: "rabbitmq:3.8-management"
-    ports:
-      - "15672:15672"
-      - "5672:5672"
     healthcheck:
       test: ["CMD-SHELL", "if rabbitmqctl status; then \nexit 0 \nfi \nexit 1"]
       interval: 10s

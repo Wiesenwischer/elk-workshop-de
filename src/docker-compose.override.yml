@@ -1,6 +1,30 @@
 version: '3.4'
 
 services:
+  elasticsearch:
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - ./elk/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+
+  logstash:
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./elk/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./elk/logstash/pipeline:/usr/share/logstash/pipeline:ro
+
+  kibana:
+    ports:
+      - "5601:5601"
+    volumes:
+      - ./elk/kibana/config/:/usr/share/kibana/config:ro
+
   rabbitmq:
     ports:
       - "15672:15672"
