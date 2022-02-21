@@ -9,6 +9,9 @@ namespace Store.ECommerce.Core
     {
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHealthChecks()
+                .AddRabbitMQ();
+
             services.AddControllersWithViews();
             services.AddSignalR(c => c.EnableDetailedErrors = true);
         }

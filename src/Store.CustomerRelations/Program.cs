@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -6,6 +7,7 @@ using NServiceBus;
 using NServiceBus.Extensions.Logging;
 using Serilog;
 using Serilog.Extensions.Logging;
+using Store.CustomerRelations;
 using Store.Shared;
 
 class Program
@@ -26,6 +28,7 @@ class Program
     static IHostBuilder CreateHostBuilder(string[] args, IConfiguration configuration)
     {
         return Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>())
             .ConfigureAppConfiguration(x => x.AddConfiguration(configuration))
             .UseConsoleLifetime()
             .UseNServiceBus(ctx =>
@@ -37,7 +40,6 @@ class Program
 
                 return endpointConfiguration;
             })
-            .ConfigureServices(sp => sp.AddSingleton<IHostedService>(new ProceedIfRabbitMqIsAlive("rabbitmq")))
             .UseSerilog();
     }
 
