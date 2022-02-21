@@ -16,28 +16,38 @@ services:
     build:
       context: .
       dockerfile: Store.ContentManagement/Dockerfile
+    depends_on:
+      - rabbitmq
 
   store.customerrelations:
     image: ${DOCKER_REGISTRY-}storecustomerrelations
     build:
       context: .
       dockerfile: Store.CustomerRelations/Dockerfile
+    depends_on:
+      - rabbitmq
       
   store.operations:
     image: ${DOCKER_REGISTRY-}storeoperations
     build:
       context: .
       dockerfile: Store.Operations/Dockerfile
+    depends_on:
+      - rabbitmq
       
   store.sales:
     image: ${DOCKER_REGISTRY-}storesales
     build:
       context: .
       dockerfile: Store.Sales/Dockerfile
+    depends_on:
+      - rabbitmq
 
   store.ecommerce:
     image: ${DOCKER_REGISTRY-}storeecommerce
     build:
       context: .
       dockerfile: Store.ECommerce/Dockerfile
+    depends_on:
+      - rabbitmq
 
