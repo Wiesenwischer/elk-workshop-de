@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Store.ContentManagement": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

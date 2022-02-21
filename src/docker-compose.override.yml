@@ -1,0 +1,30 @@
+version: '3.4'
+
+services:
+  rabbitmq:
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+
+  store.contentmanagement:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+
+  store.customerrelations:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      
+  store.operations:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      
+  store.sales:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+
+  store.ecommerce:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "80"
+

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Store.Operations": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
