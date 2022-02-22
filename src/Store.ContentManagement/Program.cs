@@ -13,7 +13,7 @@ namespace Store.ContentManagement
 {
     internal class Program
     {
-        const string AppName = "Store.ContentManagement";
+        public const string AppName = "Store.ContentManagement";
 
         public static HealthCheckResult ServiceBusState { get; private set; } = HealthCheckResult.Healthy();
 
