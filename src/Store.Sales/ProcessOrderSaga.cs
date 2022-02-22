@@ -2,90 +2,102 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using NServiceBus;
-using NServiceBus.Logging;
 using Store.Messages.Commands;
 using Store.Messages.Events;
 
-public class ProcessOrderSaga :
-    Saga<ProcessOrderSaga.OrderData>,
-    IAmStartedByMessages<SubmitOrder>,
-    IHandleMessages<CancelOrder>,
-    IHandleTimeouts<ProcessOrderSaga.BuyersRemorseIsOver>
+namespace Store.Sales
 {
-    static ILog log = LogManager.GetLogger<ProcessOrderSaga>();
+    using Microsoft.Extensions.Logging;
 
-    public Task Handle(SubmitOrder message, IMessageHandlerContext context)
+    internal class ProcessOrderSaga :
+        Saga<ProcessOrderSaga.OrderData>,
+        IAmStartedByMessages<SubmitOrder>,
+        IHandleMessages<CancelOrder>,
+        IHandleTimeouts<ProcessOrderSaga.BuyersRemorseIsOver>
     {
-        if (DebugFlagMutator.Debug)
+        readonly ILogger<ProcessOrderSaga> log;
+
+        public ProcessOrderSaga(ILogger<ProcessOrderSaga> log)
         {
-            Debugger.Break();
+            this.log = log ?? throw new ArgumentNullException(nameof(log));
         }
 
-        Data.OrderNumber = message.OrderNumber;
-        Data.ProductIds = message.ProductIds;
-        Data.ClientId = message.ClientId;
-
-        log.Info($"Starting cool down period for order #{Data.OrderNumber}.");
-        return RequestTimeout(context, TimeSpan.FromSeconds(20), new BuyersRemorseIsOver());
-    }
-
-    public Task Timeout(BuyersRemorseIsOver state, IMessageHandlerContext context)
-    {
-        if (DebugFlagMutator.Debug)
+        public Task Handle(SubmitOrder message, IMessageHandlerContext context)
         {
-            Debugger.Break();
+            if (DebugFlagMutator.Debug)
+            {
+                Debugger.Break();
+            }
+
+            Data.OrderNumber = message.OrderNumber;
+            Data.ProductIds = message.ProductIds;
+            Data.ClientId = message.ClientId;
+
+            log.LogInformation("Starting cool down period for Order #{OrderNumber}.", message.OrderNumber);
+            return RequestTimeout(context, TimeSpan.FromSeconds(20), new BuyersRemorseIsOver());
         }
 
-        MarkAsComplete();
-
-        log.Info($"Cooling down period for order #{Data.OrderNumber} has elapsed.");
-
-        var orderAccepted = new OrderAccepted
+        public Task Timeout(BuyersRemorseIsOver state, IMessageHandlerContext context)
         {
-            OrderNumber = Data.OrderNumber,
-            ProductIds = Data.ProductIds,
-            ClientId = Data.ClientId
-        };
-        return context.Publish(orderAccepted);
-    }
+            if (DebugFlagMutator.Debug)
+            {
+                Debugger.Break();
+            }
 
-    public Task Handle(CancelOrder message, IMessageHandlerContext context)
-    {
-        if (DebugFlagMutator.Debug)
-        {
-            Debugger.Break();
+            MarkAsComplete();
+            log.LogTrace("MarkAsComplete called for Order #{OrderNumber}.", Data.OrderNumber);
+
+            log.LogInformation("Cooling down period for Order #{OrderNumber} has elapsed.", Data.OrderNumber);
+
+            var orderAccepted = new OrderAccepted
+            {
+                OrderNumber = Data.OrderNumber,
+                ProductIds = Data.ProductIds,
+                ClientId = Data.ClientId
+            };
+            log.LogTrace("Publishing: {@Event}", orderAccepted);
+            return context.Publish(orderAccepted);
         }
 
-        log.Info($"Order #{message.OrderNumber} was cancelled.");
-
-        MarkAsComplete();
-
-        var orderCancelled = new OrderCancelled
+        public Task Handle(CancelOrder message, IMessageHandlerContext context)
         {
-            OrderNumber = message.OrderNumber,
-            ClientId = message.ClientId
-        };
-        return context.Publish(orderCancelled);
-    }
+            if (DebugFlagMutator.Debug)
+            {
+                Debugger.Break();
+            }
 
-    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderData> mapper)
-    {
-        mapper.ConfigureMapping<SubmitOrder>(message => message.OrderNumber)
-            .ToSaga(sagaData => sagaData.OrderNumber);
-        mapper.ConfigureMapping<CancelOrder>(message => message.OrderNumber)
-            .ToSaga(sagaData => sagaData.OrderNumber);
-    }
+            log.LogInformation("Order #{OrderNumber} was cancelled.", message.OrderNumber);
 
-    public class OrderData :
-        ContainSagaData
-    {
-        public int OrderNumber { get; set; }
-        public string[] ProductIds { get; set; }
-        public string ClientId { get; set; }
-    }
+            MarkAsComplete();
+            log.LogTrace("MarkAsComplete called for Order #{OrderNumber}.", message.OrderNumber);
 
-    public class BuyersRemorseIsOver
-    {
-    }
+            var orderCancelled = new OrderCancelled
+            {
+                OrderNumber = message.OrderNumber,
+                ClientId = message.ClientId
+            };
+            log.LogTrace("Publishing: {@Event}", orderCancelled);
+            return context.Publish(orderCancelled);
+        }
 
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderData> mapper)
+        {
+            mapper.ConfigureMapping<SubmitOrder>(message => message.OrderNumber)
+                .ToSaga(sagaData => sagaData.OrderNumber);
+            mapper.ConfigureMapping<CancelOrder>(message => message.OrderNumber)
+                .ToSaga(sagaData => sagaData.OrderNumber);
+        }
+
+        public class OrderData :
+            ContainSagaData
+        {
+            public int OrderNumber { get; set; }
+            public string[] ProductIds { get; set; }
+            public string ClientId { get; set; }
+        }
+
+        public class BuyersRemorseIsOver
+        {
+        }
+    }
 }

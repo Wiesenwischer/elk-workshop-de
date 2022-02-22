@@ -8,55 +8,58 @@ using Serilog;
 using Serilog.Extensions.Logging;
 using Store.Shared;
 
-public class Program
+namespace Store.ContentManagement
 {
-    const string AppName = "Store.ContentManagement";
-
-    public static void Main(string[] args)
+    public class Program
     {
-        var configuration = GetConfiguration();
-        Log.Logger = configuration.CreateSerilogLogger(AppName);
-        ConfigureNServiceBusLogging();
+        const string AppName = "Store.ContentManagement";
 
-        var host = CreateHostBuilder(args, configuration)
-            .Build();
-        host.Run();
-    }
+        public static void Main(string[] args)
+        {
+            var configuration = GetConfiguration();
+            Log.Logger = configuration.CreateSerilogLogger(AppName);
+            ConfigureNServiceBusLogging();
 
-    static IHostBuilder CreateHostBuilder(string[] args, IConfiguration configuration)
-    {
-        return Host.CreateDefaultBuilder(args)
-            .ConfigureAppConfiguration(x => x.AddConfiguration(configuration))
-            .UseConsoleLifetime()
-            .UseNServiceBus(ctx =>
-            {
-                var endpointConfiguration = new EndpointConfiguration(AppName);
-                endpointConfiguration.ApplyCommonConfiguration(transport =>
+            var host = CreateHostBuilder(args, configuration)
+                .Build();
+            host.Run();
+        }
+
+        static IHostBuilder CreateHostBuilder(string[] args, IConfiguration configuration)
+        {
+            return Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration(x => x.AddConfiguration(configuration))
+                .UseConsoleLifetime()
+                .UseNServiceBus(ctx =>
                 {
-                    var routing = transport.Routing();
-                    routing.RouteToEndpoint(typeof(Store.Messages.RequestResponse.ProvisionDownloadRequest), "Store.Operations");
-                });
+                    var endpointConfiguration = new EndpointConfiguration(AppName);
+                    endpointConfiguration.ApplyCommonConfiguration(transport =>
+                    {
+                        var routing = transport.Routing();
+                        routing.RouteToEndpoint(typeof(Store.Messages.RequestResponse.ProvisionDownloadRequest), "Store.Operations");
+                    });
 
-                return endpointConfiguration;
-            })
-            .ConfigureServices(sp => sp.AddSingleton<IHostedService>(new ProceedIfRabbitMqIsAlive("rabbitmq")))
-            .UseSerilog();
-    }
+                    return endpointConfiguration;
+                })
+                .ConfigureServices(sp => sp.AddSingleton<IHostedService>(new ProceedIfRabbitMqIsAlive("rabbitmq")))
+                .UseSerilog();
+        }
 
-    static IConfiguration GetConfiguration()
-    {
-        var builder = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            .AddEnvironmentVariables();
+        static IConfiguration GetConfiguration()
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddEnvironmentVariables();
 
-        return builder.Build();
-    }
+            return builder.Build();
+        }
 
-    static void ConfigureNServiceBusLogging()
-    {
-        Microsoft.Extensions.Logging.ILoggerFactory extensionsLoggerFactory = new SerilogLoggerFactory();
-        NServiceBus.Logging.ILoggerFactory nservicebusLoggerFactory = new ExtensionsLoggerFactory(extensionsLoggerFactory);
-        NServiceBus.Logging.LogManager.UseFactory(nservicebusLoggerFactory);
+        static void ConfigureNServiceBusLogging()
+        {
+            Microsoft.Extensions.Logging.ILoggerFactory extensionsLoggerFactory = new SerilogLoggerFactory();
+            NServiceBus.Logging.ILoggerFactory nservicebusLoggerFactory = new ExtensionsLoggerFactory(extensionsLoggerFactory);
+            NServiceBus.Logging.LogManager.UseFactory(nservicebusLoggerFactory);
+        }
     }
 }

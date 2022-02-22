@@ -2,29 +2,39 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using NServiceBus;
-using NServiceBus.Logging;
 using Store.Messages.Events;
 
-class OrderAcceptedHandler :
-    IHandleMessages<OrderAccepted>
+namespace Store.CustomerRelations
 {
-    static ILog log = LogManager.GetLogger<OrderAcceptedHandler>();
+    using Microsoft.Extensions.Logging;
 
-    public Task Handle(OrderAccepted message, IMessageHandlerContext context)
+    internal class OrderAcceptedHandler :
+        IHandleMessages<OrderAccepted>
     {
-        if (DebugFlagMutator.Debug)
+        readonly ILogger<OrderAcceptedHandler> log;
+
+        public OrderAcceptedHandler(ILogger<OrderAcceptedHandler> log)
         {
-            Debugger.Break();
+            this.log = log ?? throw new ArgumentNullException(nameof(log));
         }
 
-        log.Info($"Customer: {message.ClientId} is now a preferred customer publishing for other service concerns");
-
-        // publish this event as an asynchronous event
-        var clientBecamePreferred = new ClientBecamePreferred
+        public Task Handle(OrderAccepted message, IMessageHandlerContext context)
         {
-            ClientId = message.ClientId,
-            PreferredStatusExpiresOn = DateTime.Now.AddMonths(2)
-        };
-        return context.Publish(clientBecamePreferred);
+            if (DebugFlagMutator.Debug)
+            {
+                Debugger.Break();
+            }
+
+            log.LogInformation("Customer: {ClientId} is now a preferred customer publishing for other service concerns", message.ClientId);
+
+            // publish this event as an asynchronous event
+            var clientBecamePreferred = new ClientBecamePreferred
+            {
+                ClientId = message.ClientId,
+                PreferredStatusExpiresOn = DateTime.Now.AddMonths(2)
+            };
+            log.LogTrace("Publishing: {@Event}", clientBecamePreferred);
+            return context.Publish(clientBecamePreferred);
+        }
     }
 }
