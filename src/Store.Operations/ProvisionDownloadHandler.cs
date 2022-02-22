@@ -4,27 +4,30 @@ using NServiceBus;
 using NServiceBus.Logging;
 using Store.Messages.RequestResponse;
 
-public class ProvisionDownloadHandler :
-    IHandleMessages<ProvisionDownloadRequest>
+namespace Store.Operations
 {
-    static ILog log = LogManager.GetLogger<ProvisionDownloadHandler>();
-
-    public Task Handle(ProvisionDownloadRequest message, IMessageHandlerContext context)
+    public class ProvisionDownloadHandler :
+        IHandleMessages<ProvisionDownloadRequest>
     {
-        if (DebugFlagMutator.Debug)
+        static ILog log = LogManager.GetLogger<ProvisionDownloadHandler>();
+
+        public Task Handle(ProvisionDownloadRequest message, IMessageHandlerContext context)
         {
-            Debugger.Break();
+            if (DebugFlagMutator.Debug)
+            {
+                Debugger.Break();
+            }
+
+            string products = string.Join(", ", message.ProductIds);
+            log.Info($"Provision the products and make the Urls available to the Content management for download ...[{products}] product(s) to provision");
+
+            var response = new ProvisionDownloadResponse
+            {
+                OrderNumber = message.OrderNumber,
+                ProductIds = message.ProductIds,
+                ClientId = message.ClientId
+            };
+            return context.Reply(response);
         }
-
-        var products = string.Join(", ", message.ProductIds);
-        log.Info($"Provision the products and make the Urls available to the Content management for download ...[{products}] product(s) to provision");
-
-        var response = new ProvisionDownloadResponse
-        {
-            OrderNumber = message.OrderNumber,
-            ProductIds = message.ProductIds,
-            ClientId = message.ClientId
-        };
-        return context.Reply(response);
     }
 }
