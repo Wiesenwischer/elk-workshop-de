@@ -2,16 +2,23 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using NServiceBus;
-using NServiceBus.Logging;
 using Store.Messages.Events;
 using Store.Messages.RequestResponse;
 
 namespace Store.ContentManagement
 {
+    using System;
+    using Microsoft.Extensions.Logging;
+
     public class ProvisionDownloadResponseHandler :
         IHandleMessages<ProvisionDownloadResponse>
     {
-        static ILog log = LogManager.GetLogger<ProvisionDownloadResponseHandler>();
+        readonly ILogger<ProvisionDownloadResponseHandler> log;
+
+        public ProvisionDownloadResponseHandler(ILogger<ProvisionDownloadResponseHandler> log)
+        {
+            this.log = log ?? throw new ArgumentNullException(nameof(log));
+        }
 
         Dictionary<string, string> productIdToUrlMap = new Dictionary<string, string>
         {
@@ -29,9 +36,9 @@ namespace Store.ContentManagement
                 Debugger.Break();
             }
 
-            log.Info($"Download for Order # {message.OrderNumber} has been provisioned, Publishing Download ready event");
+            log.LogInformation("Download for Order #{OrderNumber} has been provisioned, publishing Download Ready event.", message.OrderNumber);
 
-            log.Info($"Downloads for Order #{message.OrderNumber} is ready, publishing it.");
+            log.LogInformation("Download for Order #{OrderNumber} is ready, publishing it.", message.OrderNumber);
             var downloadIsReady = new DownloadIsReady
             {
                 OrderNumber = message.OrderNumber,
@@ -43,9 +50,9 @@ namespace Store.ContentManagement
             {
                 downloadIsReady.ProductUrls.Add(productId, productIdToUrlMap[productId]);
             }
+            log.LogTrace("Download for Order #{OrderNumber} is ready, publishing DownloadIsReady: {@response}", message.OrderNumber, @downloadIsReady);
 
             return context.Publish(downloadIsReady);
-
         }
     }
 }
