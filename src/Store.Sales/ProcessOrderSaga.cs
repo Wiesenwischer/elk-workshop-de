@@ -2,19 +2,25 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using NServiceBus;
-using NServiceBus.Logging;
 using Store.Messages.Commands;
 using Store.Messages.Events;
 
 namespace Store.Sales
 {
-    public class ProcessOrderSaga :
+    using Microsoft.Extensions.Logging;
+
+    internal class ProcessOrderSaga :
         Saga<ProcessOrderSaga.OrderData>,
         IAmStartedByMessages<SubmitOrder>,
         IHandleMessages<CancelOrder>,
         IHandleTimeouts<ProcessOrderSaga.BuyersRemorseIsOver>
     {
-        static ILog log = LogManager.GetLogger<ProcessOrderSaga>();
+        readonly ILogger<ProcessOrderSaga> log;
+
+        public ProcessOrderSaga(ILogger<ProcessOrderSaga> log)
+        {
+            this.log = log ?? throw new ArgumentNullException(nameof(log));
+        }
 
         public Task Handle(SubmitOrder message, IMessageHandlerContext context)
         {
@@ -27,7 +33,7 @@ namespace Store.Sales
             Data.ProductIds = message.ProductIds;
             Data.ClientId = message.ClientId;
 
-            log.Info($"Starting cool down period for order #{Data.OrderNumber}.");
+            log.LogInformation("Starting cool down period for Order #{OrderNumber}.", message.OrderNumber);
             return RequestTimeout(context, TimeSpan.FromSeconds(20), new BuyersRemorseIsOver());
         }
 
@@ -39,9 +45,9 @@ namespace Store.Sales
             }
 
             MarkAsComplete();
-            log.Debug($"MarkAsComplete called for order #{Data.OrderNumber}.");
+            log.LogTrace("MarkAsComplete called for Order #{OrderNumber}.", Data.OrderNumber);
 
-            log.Info($"Cooling down period for order #{Data.OrderNumber} has elapsed.");
+            log.LogInformation("Cooling down period for Order #{OrderNumber} has elapsed.", Data.OrderNumber);
 
             var orderAccepted = new OrderAccepted
             {
@@ -49,6 +55,7 @@ namespace Store.Sales
                 ProductIds = Data.ProductIds,
                 ClientId = Data.ClientId
             };
+            log.LogTrace("Publishing: {@Event}", orderAccepted);
             return context.Publish(orderAccepted);
         }
 
@@ -59,16 +66,17 @@ namespace Store.Sales
                 Debugger.Break();
             }
 
-            log.Info($"Order #{message.OrderNumber} was cancelled.");
+            log.LogInformation("Order #{OrderNumber} was cancelled.", message.OrderNumber);
 
             MarkAsComplete();
-            log.Debug($"MarkAsComplete called for order #{Data.OrderNumber}.");
+            log.LogTrace("MarkAsComplete called for Order #{OrderNumber}.", message.OrderNumber);
 
             var orderCancelled = new OrderCancelled
             {
                 OrderNumber = message.OrderNumber,
                 ClientId = message.ClientId
             };
+            log.LogTrace("Publishing: {@Event}", orderCancelled);
             return context.Publish(orderCancelled);
         }
 
