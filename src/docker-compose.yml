@@ -25,13 +25,13 @@ services:
       retries: 5
 
   healthchecks:
-    image: ${DOCKER_REGISTRY-}healthchecks
+    image: ${DOCKER_REGISTRY}/healthchecks
     build:
       context: .
       dockerfile: ITOps.HealthMonitor/Dockerfile
 
   store-contentmanagement:
-    image: ${DOCKER_REGISTRY-}storecontentmanagement
+    image: ${DOCKER_REGISTRY}/storecontentmanagement
     build:
       context: .
       dockerfile: Store.ContentManagement/Dockerfile
@@ -39,7 +39,7 @@ services:
       - rabbitmq
 
   store-customerrelations:
-    image: ${DOCKER_REGISTRY-}storecustomerrelations
+    image: ${DOCKER_REGISTRY}/storecustomerrelations
     build:
       context: .
       dockerfile: Store.CustomerRelations/Dockerfile
@@ -47,7 +47,7 @@ services:
       - rabbitmq
       
   store-operations:
-    image: ${DOCKER_REGISTRY-}storeoperations
+    image: ${DOCKER_REGISTRY}/storeoperations
     build:
       context: .
       dockerfile: Store.Operations/Dockerfile
@@ -55,7 +55,7 @@ services:
       - rabbitmq
       
   store-sales:
-    image: ${DOCKER_REGISTRY-}storesales
+    image: ${DOCKER_REGISTRY}/storesales
     build:
       context: .
       dockerfile: Store.Sales/Dockerfile
@@ -63,7 +63,7 @@ services:
       - rabbitmq
 
   store-ecommerce:
-    image: ${DOCKER_REGISTRY-}storeecommerce
+    image: ${DOCKER_REGISTRY}/storeecommerce
     build:
       context: .
       dockerfile: Store.ECommerce/Dockerfile
