@@ -7,10 +7,13 @@ using Serilog;
 using Serilog.Extensions.Logging;
 using Store.CustomerRelations;
 using System.IO;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 class Program
 {
     const string AppName = "Store.CustomerRelations";
+
+    public static HealthCheckResult ServiceBusState { get; private set; } = HealthCheckResult.Healthy();
 
     public static void Main(string[] args)
     {
@@ -34,6 +37,9 @@ class Program
                 var endpointConfiguration = new EndpointConfiguration(Program.AppName);
                 endpointConfiguration.ApplyCommonConfiguration(transport =>
                 {
+                }, error =>
+                {
+                    ServiceBusState = HealthCheckResult.Unhealthy("Critical error on endpoint", error);
                 });
 
                 return endpointConfiguration;

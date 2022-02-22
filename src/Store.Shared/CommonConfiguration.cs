@@ -10,7 +10,7 @@ using Serilog;
 public static class CommonConfiguration
 {
     public static void ApplyCommonConfiguration(this EndpointConfiguration endpointConfiguration,
-        Action<TransportExtensions<RabbitMQTransport>> messageEndpointMappings = null)
+        Action<TransportExtensions<RabbitMQTransport>> messageEndpointMappings = null, Action<Exception> onCriticalError = null)
     {
         var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
         transport.ConnectionString("host=rabbitmq");
@@ -19,7 +19,11 @@ public static class CommonConfiguration
         endpointConfiguration.UseSerialization<NewtonsoftSerializer>();
         endpointConfiguration.EnableInstallers();
 
-        endpointConfiguration.DefineCriticalErrorAction(CriticalErrorActions.RestartContainer);
+        endpointConfiguration.DefineCriticalErrorAction(ctx=>
+        {
+            onCriticalError?.Invoke(ctx.Exception);
+            return CriticalErrorActions.RestartContainer(ctx);
+        });
 
         messageEndpointMappings?.Invoke(transport);
         endpointConfiguration.UsePersistence<LearningPersistence>();

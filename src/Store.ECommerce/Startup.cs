@@ -14,7 +14,8 @@ namespace Store.ECommerce.Core
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHealthChecks()
-                .AddCheck("self", () => HealthCheckResult.Healthy(), new[] { "liveness" });
+                .AddCheck("self", () => HealthCheckResult.Healthy(), new[] { "liveness" })
+                .AddCheck("servicebus", () => Program.ServiceBusState, new[] { "messaging", "nservicebus" });
 
             services.AddSingleton<IHostedService>(new ProceedIfRabbitMqIsAlive("rabbitmq"));
 

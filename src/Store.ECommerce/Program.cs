@@ -9,9 +9,13 @@ using System.IO;
 
 namespace Store.ECommerce.Core
 {
+    using Microsoft.Extensions.Diagnostics.HealthChecks;
+
     internal class Program
     {
         const string AppName = "Store.ECommerce";
+
+        public static HealthCheckResult ServiceBusState { get; private set; } = HealthCheckResult.Healthy();
 
         public static void Main(string[] args)
         {
@@ -36,6 +40,9 @@ namespace Store.ECommerce.Core
                     {
                         var routing = transport.Routing();
                         routing.RouteToEndpoint(typeof(Messages.Commands.SubmitOrder).Assembly, "Store.Messages.Commands", "Store.Sales");
+                    }, error =>
+                    {
+                        ServiceBusState = HealthCheckResult.Unhealthy("Critical error on endpoint", error);
                     });
 
                     return endpointConfiguration;
