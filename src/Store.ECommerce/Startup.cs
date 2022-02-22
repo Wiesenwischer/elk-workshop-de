@@ -16,7 +16,8 @@ namespace Store.ECommerce.Core
             services.AddHealthChecks()
                 .AddCheck("self", () => HealthCheckResult.Healthy(), new[] { "liveness" })
                 .AddCheck("servicebus", () => Program.ServiceBusState, new[] { "messaging", "nservicebus" })
-                .AddSignalRHub($"http://localhost{OrdersHub.Url}", "orders-hub", tags: new string[] { "messaging", "signalr" });
+                .AddSignalRHub($"http://localhost{OrdersHub.Url}", "orders-hub", tags: new[] { "messaging", "signalr" })
+                .AddRabbitMQ(name: "rabbit-mq", rabbitConnectionString: "amqp://guest:guest@rabbitmq:5672", tags: new[] { "messaging", "rabbit-mq" });
 
             services.AddSingleton<IHostedService>(new ProceedIfRabbitMqIsAlive("rabbitmq"));
 

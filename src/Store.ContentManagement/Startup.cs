@@ -23,11 +23,12 @@ namespace Store.ContentManagement
         {
             services.AddHealthChecks()
                 .AddCheck("self", () => HealthCheckResult.Healthy(), new[] { "liveness" })
-                .AddCheck("servicebus", () => Program.ServiceBusState, new[] { "messaging", "nservicebus" });
+                .AddCheck("servicebus", () => Program.ServiceBusState, new[] { "messaging", "nservicebus" })
+                .AddRabbitMQ(name: "rabbit-mq", rabbitConnectionString: "amqp://guest:guest@rabbitmq:5672", tags: new[] { "messaging", "rabbit-mq" });
 
             services.AddSingleton<IHostedService>(new ProceedIfRabbitMqIsAlive("rabbitmq"));
         }
-        
+
         public void Configure(IApplicationBuilder app)
         {
             app.UseRouting();
