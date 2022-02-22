@@ -1,35 +1,47 @@
 ﻿using System.Diagnostics;
 using System.Threading.Tasks;
 using NServiceBus;
-using NServiceBus.Logging;
 using Store.Messages.Commands;
 using Store.Messages.Events;
+using Microsoft.Extensions.Logging;
 
-public class SubmitOrderHandler :
-    IHandleMessages<SubmitOrder>
+namespace Store.Sales
 {
-    static ILog log = LogManager.GetLogger<SubmitOrderHandler>();
+    using System;
 
-    public Task Handle(SubmitOrder message, IMessageHandlerContext context)
+    internal class SubmitOrderHandler :
+        IHandleMessages<SubmitOrder>
     {
-        if (DebugFlagMutator.Debug)
+        readonly ILogger<SubmitOrderHandler> log;
+
+        public SubmitOrderHandler(ILogger<SubmitOrderHandler> log)
         {
-            Debugger.Break();
+            this.log = log ?? throw new ArgumentNullException(nameof(log));
         }
 
-        log.Info($"Received an order #{message.OrderNumber} for [{string.Join(", ", message.ProductIds)}] products(s).");
-
-        log.Info("The credit card values will be encrypted when looking at the messages in the queues");
-        log.Info($"CreditCard Number is {message.CreditCardNumber}");
-        log.Info($"CreditCard Expiration Date is {message.ExpirationDate}");
-
-        // tell the client the order was received
-        var orderPlaced = new OrderPlaced
+        public Task Handle(SubmitOrder message, IMessageHandlerContext context)
         {
-            ClientId = message.ClientId,
-            OrderNumber = message.OrderNumber,
-            ProductIds = message.ProductIds
-        };
-        return context.Publish(orderPlaced);
+            if (DebugFlagMutator.Debug)
+            {
+                Debugger.Break();
+            }
+
+            string products = string.Join(", ", message.ProductIds);
+            log.LogInformation("Received an Order #{OrderNumber} for [{ProductIds}] product(s).", message.OrderNumber, products);
+
+            log.LogInformation("The credit card values will be encrypted when looking at the messages in the queues");
+            log.LogInformation("CreditCard Number is {CreditCardNumber}", message.CreditCardNumber);
+            log.LogInformation("CreditCard Expiration Date is {ExpirationDate}", message.ExpirationDate);
+
+            // tell the client the order was received
+            var orderPlaced = new OrderPlaced
+            {
+                ClientId = message.ClientId,
+                OrderNumber = message.OrderNumber,
+                ProductIds = message.ProductIds
+            };
+            log.LogTrace("Publishing: {@Event}", orderPlaced);
+            return context.Publish(orderPlaced);
+        }
     }
 }

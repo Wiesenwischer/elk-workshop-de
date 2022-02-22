@@ -1,37 +1,54 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using NServiceBus;
 using NServiceBus.Extensions.Logging;
 using Serilog;
 using Serilog.Extensions.Logging;
+using System;
 using System.IO;
 
 namespace Store.ECommerce.Core
 {
-    using Microsoft.Extensions.Diagnostics.HealthChecks;
-
     internal class Program
     {
         const string AppName = "Store.ECommerce";
 
         public static HealthCheckResult ServiceBusState { get; private set; } = HealthCheckResult.Healthy();
 
-        public static void Main(string[] args)
+        public static int Main(string[] args)
         {
             var configuration = GetConfiguration();
             Log.Logger = configuration.CreateSerilogLogger(AppName);
             ConfigureNServiceBusLogging();
 
-            var host = BuildWebHost(args, configuration)
-                .Build();
-            host.Run();
+            try
+            {
+                Log.Information("Configuring web host ({ApplicationContext})...", AppName);
+                var host = BuildWebHost(args, configuration)
+                    .Build();
+
+                Log.Information("Starting web host ({ApplicationContext})...", AppName);
+                host.Run();
+
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Program terminated unexpectedly ({ApplicationContext})!", AppName);
+                return 1;
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
 
         static IHostBuilder BuildWebHost(string[] args, IConfiguration configuration) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>())
                 .ConfigureAppConfiguration(x => x.AddConfiguration(configuration))
-                .ConfigureWebHostDefaults(c => c.UseStartup<Startup>())
                 .UseNServiceBus(ctx =>
                 {
                     var endpointConfiguration = new EndpointConfiguration(Program.AppName);

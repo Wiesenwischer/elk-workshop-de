@@ -3,22 +3,25 @@ using Microsoft.AspNetCore.SignalR;
 using NServiceBus;
 using Store.Messages.Events;
 
-public class OrderCancelledHandler :
-    IHandleMessages<OrderCancelled>
+namespace Store.ECommerce.Handlers
 {
-    private IHubContext<OrdersHub> ordersHubContext;
-
-    public OrderCancelledHandler(IHubContext<OrdersHub> ordersHubContext)
+    public class OrderCancelledHandler :
+        IHandleMessages<OrderCancelled>
     {
-        this.ordersHubContext = ordersHubContext;
-    }
+        private IHubContext<OrdersHub> ordersHubContext;
 
-    public Task Handle(OrderCancelled message, IMessageHandlerContext context)
-    {
-        return ordersHubContext.Clients.Client(message.ClientId).SendAsync("orderCancelled",
-            new
-            {
-                message.OrderNumber,
-            });
+        public OrderCancelledHandler(IHubContext<OrdersHub> ordersHubContext)
+        {
+            this.ordersHubContext = ordersHubContext;
+        }
+
+        public Task Handle(OrderCancelled message, IMessageHandlerContext context)
+        {
+            return ordersHubContext.Clients.Client(message.ClientId).SendAsync("orderCancelled",
+                new
+                {
+                    message.OrderNumber,
+                });
+        }
     }
 }

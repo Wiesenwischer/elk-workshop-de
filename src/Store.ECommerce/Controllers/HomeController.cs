@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-public class HomeController :
-    Controller
+namespace Store.ECommerce.Controllers
 {
-    public ActionResult Index()
+    public class HomeController :
+        Controller
     {
-        return View();
+        public ActionResult Index()
+        {
+            return View();
+        }
     }
 }

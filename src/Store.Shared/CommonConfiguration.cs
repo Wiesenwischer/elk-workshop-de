@@ -39,6 +39,7 @@ public static class CommonConfiguration
     public static ILogger CreateSerilogLogger(this IConfiguration configuration, string applicationContext)
     {
         string logstashUrl = configuration["Serilog:LogstashUrl"];
+
         return new LoggerConfiguration()
             .MinimumLevel.Verbose()
             .Enrich.WithProperty("ApplicationContext", applicationContext)

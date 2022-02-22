@@ -1,66 +1,84 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using NServiceBus;
 using NServiceBus.Extensions.Logging;
 using Serilog;
 using Serilog.Extensions.Logging;
-using Store.Sales;
+using System;
 using System.IO;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-internal class Program
+namespace Store.Sales
 {
-    const string AppName = "Store.Sales";
-
-    public static HealthCheckResult ServiceBusState { get; private set; } = HealthCheckResult.Healthy();
-
-    public static void Main(string[] args)
+    internal class Program
     {
-        var configuration = GetConfiguration();
-        Log.Logger = configuration.CreateSerilogLogger(AppName);
-        ConfigureNServiceBusLogging();
+        const string AppName = "Store.Sales";
+        public static HealthCheckResult ServiceBusState { get; private set; } = HealthCheckResult.Healthy();
 
-        var host = CreateHostBuilder(args, configuration)
-            .Build();
-        host.Run();
-    }
+        public static int Main(string[] args)
+        {
+            var configuration = GetConfiguration();
+            Log.Logger = configuration.CreateSerilogLogger(AppName);
+            ConfigureNServiceBusLogging();
 
-    static IHostBuilder CreateHostBuilder(string[] args, IConfiguration configuration)
-    {
-        return Host.CreateDefaultBuilder(args)
-            .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>())
-            .ConfigureAppConfiguration(x => x.AddConfiguration(configuration))
-            .UseConsoleLifetime()
-            .UseNServiceBus(ctx =>
+            try
             {
-                var endpointConfiguration = new EndpointConfiguration(Program.AppName);
-                endpointConfiguration.ApplyCommonConfiguration(transport =>
+                Log.Information("Configuring web host ({ApplicationContext})...", AppName);
+                var host = CreateHostBuilder(args, configuration)
+                    .Build();
+
+                Log.Information("Starting web host ({ApplicationContext})...", AppName);
+                host.Run();
+
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Program terminated unexpectedly ({ApplicationContext})!", AppName);
+                return 1;
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
+        }
+
+        static IHostBuilder CreateHostBuilder(string[] args, IConfiguration configuration)
+        {
+            return Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>())
+                .ConfigureAppConfiguration(x => x.AddConfiguration(configuration))
+                .UseConsoleLifetime()
+                .UseNServiceBus(ctx =>
                 {
-                }, error =>
-                {
-                    ServiceBusState = HealthCheckResult.Unhealthy("Critical error on endpoint", error);
-                });
+                    var endpointConfiguration = new EndpointConfiguration(Program.AppName);
+                    endpointConfiguration.ApplyCommonConfiguration(transport => { },
+                    error =>
+                    {
+                        ServiceBusState = HealthCheckResult.Unhealthy("Critical error on endpoint", error);
+                    });
 
-                return endpointConfiguration;
-            })
-            .UseSerilog();
-    }
+                    return endpointConfiguration;
+                })
+                .UseSerilog();
+        }
 
-    static IConfiguration GetConfiguration()
-    {
-        var builder = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            .AddEnvironmentVariables();
+        static IConfiguration GetConfiguration()
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddEnvironmentVariables();
 
-        return builder.Build();
-    }
+            return builder.Build();
+        }
 
-    static void ConfigureNServiceBusLogging()
-    {
-        Microsoft.Extensions.Logging.ILoggerFactory extensionsLoggerFactory = new SerilogLoggerFactory();
-        NServiceBus.Logging.ILoggerFactory nservicebusLoggerFactory = new ExtensionsLoggerFactory(extensionsLoggerFactory);
-        NServiceBus.Logging.LogManager.UseFactory(nservicebusLoggerFactory);
+        static void ConfigureNServiceBusLogging()
+        {
+            Microsoft.Extensions.Logging.ILoggerFactory extensionsLoggerFactory = new SerilogLoggerFactory();
+            NServiceBus.Logging.ILoggerFactory nservicebusLoggerFactory = new ExtensionsLoggerFactory(extensionsLoggerFactory);
+            NServiceBus.Logging.LogManager.UseFactory(nservicebusLoggerFactory);
+        }
     }
 }
