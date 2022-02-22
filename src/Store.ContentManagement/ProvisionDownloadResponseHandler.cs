@@ -1,15 +1,14 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Logging;
 using NServiceBus;
 using Store.Messages.Events;
 using Store.Messages.RequestResponse;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Store.ContentManagement
 {
-    using System;
-    using Microsoft.Extensions.Logging;
-
     public class ProvisionDownloadResponseHandler :
         IHandleMessages<ProvisionDownloadResponse>
     {
