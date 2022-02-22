@@ -1,15 +1,22 @@
 ﻿using System.Diagnostics;
 using System.Threading.Tasks;
 using NServiceBus;
-using NServiceBus.Logging;
 using Store.Messages.Events;
 
 namespace Store.CustomerRelations
 {
+    using System;
+    using Microsoft.Extensions.Logging;
+
     internal class SendLimitedTimeOffer :
         IHandleMessages<ClientBecamePreferred>
     {
-        static ILog log = LogManager.GetLogger<SendLimitedTimeOffer>();
+        readonly ILogger<SendLimitedTimeOffer> log;
+
+        public SendLimitedTimeOffer(ILogger<SendLimitedTimeOffer> log)
+        {
+            this.log = log ?? throw new ArgumentNullException(nameof(log));
+        }
 
         public Task Handle(ClientBecamePreferred message, IMessageHandlerContext context)
         {
@@ -18,7 +25,7 @@ namespace Store.CustomerRelations
                 Debugger.Break();
             }
 
-            log.Info($"Handler WhenCustomerIsPreferredSendLimitedTimeOffer invoked for CustomerId: {message.ClientId}");
+            log.LogInformation("Handler WhenCustomerIsPreferredSendLimitedTimeOffer invoked for CustomerId: {ClientId}", message.ClientId);
             return Task.CompletedTask;
         }
     }

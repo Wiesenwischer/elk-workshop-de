@@ -1,15 +1,22 @@
 ﻿using System.Diagnostics;
 using System.Threading.Tasks;
 using NServiceBus;
-using NServiceBus.Logging;
 using Store.Messages.Events;
 
 namespace Store.CustomerRelations
 {
+    using System;
+    using Microsoft.Extensions.Logging;
+
     internal class SendWelcomePacket :
         IHandleMessages<ClientBecamePreferred>
     {
-        static ILog log = LogManager.GetLogger<SendWelcomePacket>();
+        readonly ILogger<SendWelcomePacket> log;
+
+        public SendWelcomePacket(ILogger<SendWelcomePacket> log)
+        {
+            this.log = log ?? throw new ArgumentNullException(nameof(log));
+        }
 
         public Task Handle(ClientBecamePreferred message, IMessageHandlerContext context)
         {
@@ -18,7 +25,7 @@ namespace Store.CustomerRelations
                 Debugger.Break();
             }
 
-            log.Info($"Handler WhenCustomerIsPreferredSendWelcomeEmail invoked for CustomerId: {message.ClientId}");
+            log.LogInformation("Handler WhenCustomerIsPreferredSendWelcomeEmail invoked for CustomerId: {ClientId}", message.ClientId);
             return Task.CompletedTask;
         }
     }
