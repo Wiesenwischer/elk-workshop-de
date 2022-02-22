@@ -31,7 +31,7 @@ services:
       dockerfile: ITOps.HealthMonitor/Dockerfile
 
   store-contentmanagement:
-    image: maddev77/storecontentmanagement
+    image: ${DOCKER_REGISTRY}/storecontentmanagement
     build:
       context: .
       dockerfile: Store.ContentManagement/Dockerfile
