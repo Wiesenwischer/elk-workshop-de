@@ -9,6 +9,7 @@ using System.IO;
 
 namespace Store.ECommerce.Core
 {
+    using System;
     using Microsoft.Extensions.DependencyInjection;
     using Store.Shared;
 
@@ -16,15 +17,32 @@ namespace Store.ECommerce.Core
     {
         const string AppName = "Store.ECommerce";
 
-        public static void Main(string[] args)
+        public static int Main(string[] args)
         {
             var configuration = GetConfiguration();
             Log.Logger = configuration.CreateSerilogLogger(AppName);
             ConfigureNServiceBusLogging();
 
-            var host = BuildWebHost(args, configuration)
-                .Build();
-            host.Run();
+            try
+            {
+                Log.Information("Configuring web host ({ApplicationContext})...", AppName);
+                var host = BuildWebHost(args, configuration)
+                    .Build();
+
+                Log.Information("Starting web host ({ApplicationContext})...", AppName);
+                host.Run();
+
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Program terminated unexpectedly ({ApplicationContext})!", AppName);
+                return 1;
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
 
         static IHostBuilder BuildWebHost(string[] args, IConfiguration configuration) =>
