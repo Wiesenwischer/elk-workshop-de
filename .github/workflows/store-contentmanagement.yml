@@ -20,7 +20,7 @@ on:
 
 env:
   SERVICE: store-contentmanagement
-  IMAGE: storecontentmanagement
+  IMAGE: maddev77/storecontentmanagement
 
 jobs:
 
