@@ -1,14 +1,12 @@
-﻿using System.IO;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NServiceBus;
 using NServiceBus.Extensions.Logging;
 using Serilog;
 using Serilog.Extensions.Logging;
 using Store.CustomerRelations;
-using Store.Shared;
+using System.IO;
 
 class Program
 {

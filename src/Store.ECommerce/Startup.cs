@@ -1,7 +1,11 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
+using Store.Shared;
 
 namespace Store.ECommerce.Core
 {
@@ -10,7 +14,9 @@ namespace Store.ECommerce.Core
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHealthChecks()
-                .AddRabbitMQ();
+                .AddCheck("self", () => HealthCheckResult.Healthy(), new[] { "liveness" });
+
+            services.AddSingleton<IHostedService>(new ProceedIfRabbitMqIsAlive("rabbitmq"));
 
             services.AddControllersWithViews();
             services.AddSignalR(c => c.EnableDetailedErrors = true);
@@ -30,6 +36,16 @@ namespace Store.ECommerce.Core
                 endpoints.MapHub<OrdersHub>("/ordershub");
                 endpoints.MapControllers();
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+
+                endpoints.MapHealthChecks("/hc", new HealthCheckOptions()
+                {
+                    Predicate = _ => true,
+                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                });
+                endpoints.MapHealthChecks("/liveness", new HealthCheckOptions
+                {
+                    Predicate = r => r.Name.Contains("self")
+                });
             });
         }
     }

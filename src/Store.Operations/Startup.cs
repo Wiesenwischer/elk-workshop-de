@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Store.Shared;
 
@@ -21,7 +22,7 @@ namespace Store.Operations
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHealthChecks()
-                .AddRabbitMQ();
+                .AddCheck("self", () => HealthCheckResult.Healthy(), new[] { "liveness" });
 
             services.AddSingleton<IHostedService>(new ProceedIfRabbitMqIsAlive("rabbitmq"));
         }

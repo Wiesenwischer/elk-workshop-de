@@ -5,8 +5,10 @@
     <DockerTargetOS>Linux</DockerTargetOS>
     <ProjectGuid>59a66df6-457c-4c34-a852-b1280e51e8ff</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
-    <DockerServiceUrl>{Scheme}://localhost:{ServicePort}</DockerServiceUrl>
-    <DockerServiceName>store.ecommerce</DockerServiceName>
+    <DockerServiceName>store-ecommerce</DockerServiceName>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DockerServiceUrl>http://host.docker.internal:64876</DockerServiceUrl>
   </PropertyGroup>
   <ItemGroup>
     <None Include="docker-compose.override.yml">

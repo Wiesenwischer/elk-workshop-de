@@ -9,9 +9,6 @@ using System.IO;
 
 namespace Store.ECommerce.Core
 {
-    using Microsoft.Extensions.DependencyInjection;
-    using Store.Shared;
-
     internal class Program
     {
         const string AppName = "Store.ECommerce";
@@ -31,7 +28,7 @@ namespace Store.ECommerce.Core
             Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration(x => x.AddConfiguration(configuration))
                 .ConfigureWebHostDefaults(c => c.UseStartup<Startup>())
-                .UseNServiceBus(c =>
+                .UseNServiceBus(ctx =>
                 {
                     var endpointConfiguration = new EndpointConfiguration(Program.AppName);
                     endpointConfiguration.PurgeOnStartup(true);
@@ -43,7 +40,6 @@ namespace Store.ECommerce.Core
 
                     return endpointConfiguration;
                 })
-                .ConfigureServices(sp => sp.AddSingleton<IHostedService>(new ProceedIfRabbitMqIsAlive("rabbitmq")))
                 .UseSerilog();
 
         static IConfiguration GetConfiguration()

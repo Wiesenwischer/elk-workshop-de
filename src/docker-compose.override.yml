@@ -30,25 +30,47 @@ services:
       - "15672:15672"
       - "5672:5672"
 
-  store.contentmanagement:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-
-  store.customerrelations:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      
-  store.operations:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      
-  store.sales:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-
-  store.ecommerce:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+  healthchecks:
     ports:
-      - "80"
+      - "5602:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80
+      - HealthChecksUI__HealthChecks__0__Name=Contentmanagement server health check
+      - HealthChecksUI__HealthChecks__0__Uri=http://store-contentmanagement/hc
+      - HealthChecksUI__HealthChecks__1__Name=Customerrelations server health check
+      - HealthChecksUI__HealthChecks__1__Uri=http://store-customerrelations/hc
+      - HealthChecksUI__HealthChecks__2__Name=Operations health check
+      - HealthChecksUI__HealthChecks__2__Uri=http://store-operations/hc
+      - HealthChecksUI__HealthChecks__3__Name=Sales server health check
+      - HealthChecksUI__HealthChecks__3__Uri=http://store-sales/hc
+      - HealthChecksUI__HealthChecks__4__Name=Ecommerce server health check
+      - HealthChecksUI__HealthChecks__4__Uri=http://store-ecommerce/hc
+
+  store-contentmanagement:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80   
+
+  store-customerrelations:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80  
+      
+  store-operations:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80   
+      
+  store-sales:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80  
+
+  store-ecommerce:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80  
+    ports:
+      - "64876:80"
 

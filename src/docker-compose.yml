@@ -24,7 +24,13 @@ services:
       interval: 10s
       retries: 5
 
-  store.contentmanagement:
+  healthchecks:
+    image: ${DOCKER_REGISTRY-}healthchecks
+    build:
+      context: .
+      dockerfile: ITOps.HealthMonitor/Dockerfile
+
+  store-contentmanagement:
     image: ${DOCKER_REGISTRY-}storecontentmanagement
     build:
       context: .
@@ -32,7 +38,7 @@ services:
     depends_on:
       - rabbitmq
 
-  store.customerrelations:
+  store-customerrelations:
     image: ${DOCKER_REGISTRY-}storecustomerrelations
     build:
       context: .
@@ -40,7 +46,7 @@ services:
     depends_on:
       - rabbitmq
       
-  store.operations:
+  store-operations:
     image: ${DOCKER_REGISTRY-}storeoperations
     build:
       context: .
@@ -48,7 +54,7 @@ services:
     depends_on:
       - rabbitmq
       
-  store.sales:
+  store-sales:
     image: ${DOCKER_REGISTRY-}storesales
     build:
       context: .
@@ -56,7 +62,7 @@ services:
     depends_on:
       - rabbitmq
 
-  store.ecommerce:
+  store-ecommerce:
     image: ${DOCKER_REGISTRY-}storeecommerce
     build:
       context: .
