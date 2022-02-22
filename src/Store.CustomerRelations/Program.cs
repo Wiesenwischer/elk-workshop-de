@@ -1,20 +1,21 @@
-﻿using System.IO;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NServiceBus;
 using NServiceBus.Extensions.Logging;
 using Serilog;
 using Serilog.Extensions.Logging;
-using Store.Shared;
+using System;
+using System.IO;
 
 namespace Store.CustomerRelations
 {
-    using System;
+    using Microsoft.Extensions.Diagnostics.HealthChecks;
 
     internal class Program
     {
         const string AppName = "Store.CustomerRelations";
+        public static HealthCheckResult ServiceBusState { get; private set; } = HealthCheckResult.Healthy();
 
         public static int Main(string[] args)
         {
@@ -47,16 +48,20 @@ namespace Store.CustomerRelations
         static IHostBuilder CreateHostBuilder(string[] args, IConfiguration configuration)
         {
             return Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>())
                 .ConfigureAppConfiguration(x => x.AddConfiguration(configuration))
                 .UseConsoleLifetime()
                 .UseNServiceBus(ctx =>
                 {
                     var endpointConfiguration = new EndpointConfiguration(Program.AppName);
-                    endpointConfiguration.ApplyCommonConfiguration(transport => { });
+                    endpointConfiguration.ApplyCommonConfiguration(transport => { },
+                    error =>
+                    {
+                        ServiceBusState = HealthCheckResult.Unhealthy("Critical error on endpoint", error);
+                    });
 
                     return endpointConfiguration;
                 })
-                .ConfigureServices(sp => sp.AddSingleton<IHostedService>(new ProceedIfRabbitMqIsAlive("rabbitmq")))
                 .UseSerilog();
         }
 

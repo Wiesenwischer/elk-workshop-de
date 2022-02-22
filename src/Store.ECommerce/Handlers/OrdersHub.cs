@@ -1,16 +1,18 @@
-﻿using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using NServiceBus;
 using Store.Messages.Commands;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Store.ECommerce.Handlers
 {
     public class OrdersHub : Hub
     {
-        private static int orderNumber;
-        private IMessageSession messageSession;
+        public const string Url = "/ordershub";
+
+        static int orderNumber;
+        IMessageSession messageSession;
 
         public OrdersHub(IMessageSession messageSession)
         {

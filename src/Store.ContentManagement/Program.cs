@@ -1,20 +1,21 @@
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using NServiceBus;
-using System.IO;
-using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Extensions.Logging;
 using Serilog;
 using Serilog.Extensions.Logging;
-using Store.Shared;
+using System;
+using System.IO;
 
 namespace Store.ContentManagement
 {
-    using System;
-
-    public class Program
+    internal class Program
     {
         const string AppName = "Store.ContentManagement";
+
+        public static HealthCheckResult ServiceBusState { get; private set; } = HealthCheckResult.Healthy();
 
         public static int Main(string[] args)
         {
@@ -47,6 +48,7 @@ namespace Store.ContentManagement
         static IHostBuilder CreateHostBuilder(string[] args, IConfiguration configuration)
         {
             return Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>())
                 .ConfigureAppConfiguration(x => x.AddConfiguration(configuration))
                 .UseConsoleLifetime()
                 .UseNServiceBus(ctx =>
@@ -55,12 +57,14 @@ namespace Store.ContentManagement
                     endpointConfiguration.ApplyCommonConfiguration(transport =>
                     {
                         var routing = transport.Routing();
-                        routing.RouteToEndpoint(typeof(Store.Messages.RequestResponse.ProvisionDownloadRequest), "Store.Operations");
+                        routing.RouteToEndpoint(typeof(Messages.RequestResponse.ProvisionDownloadRequest), "Store.Operations");
+                    }, error =>
+                    {
+                        ServiceBusState = HealthCheckResult.Unhealthy("Critical error on endpoint", error);
                     });
-
+                    
                     return endpointConfiguration;
                 })
-                .ConfigureServices(sp => sp.AddSingleton<IHostedService>(new ProceedIfRabbitMqIsAlive("rabbitmq")))
                 .UseSerilog();
         }
 

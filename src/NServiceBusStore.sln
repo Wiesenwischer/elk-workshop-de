@@ -18,6 +18,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Store.ECommerce", "Store.EC
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{59A66DF6-457C-4C34-A852-B1280E51E8FF}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ITOps.HealthMonitor", "ITOps.HealthMonitor\ITOps.HealthMonitor.csproj", "{4D57BC14-7CE8-494E-81CC-3B157A5753F8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +58,10 @@ Global
 		{59A66DF6-457C-4C34-A852-B1280E51E8FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59A66DF6-457C-4C34-A852-B1280E51E8FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{59A66DF6-457C-4C34-A852-B1280E51E8FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D57BC14-7CE8-494E-81CC-3B157A5753F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D57BC14-7CE8-494E-81CC-3B157A5753F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D57BC14-7CE8-494E-81CC-3B157A5753F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D57BC14-7CE8-494E-81CC-3B157A5753F8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

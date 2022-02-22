@@ -13,6 +13,9 @@
     <ProjectReference Include="..\Store.Shared\Store.Shared.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="3.*" />
+    <PackageReference Include="AspNetCore.HealthChecks.SignalR" Version="3.*" />
+    <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="3.*" />
     <PackageReference Include="NServiceBus.Extensions.Hosting" Version="1.*" />
     <PackageReference Include="NServiceBus.Newtonsoft.Json" Version="2.*" />
     <PackageReference Include="NServiceBus.RabbitMQ" Version="5.*" />

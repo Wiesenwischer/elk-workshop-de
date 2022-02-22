@@ -1,21 +1,21 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using NServiceBus;
 using NServiceBus.Extensions.Logging;
 using Serilog;
 using Serilog.Extensions.Logging;
+using System;
 using System.IO;
 
 namespace Store.ECommerce.Core
 {
-    using System;
-    using Microsoft.Extensions.DependencyInjection;
-    using Store.Shared;
-
     internal class Program
     {
         const string AppName = "Store.ECommerce";
+
+        public static HealthCheckResult ServiceBusState { get; private set; } = HealthCheckResult.Healthy();
 
         public static int Main(string[] args)
         {
@@ -47,9 +47,9 @@ namespace Store.ECommerce.Core
 
         static IHostBuilder BuildWebHost(string[] args, IConfiguration configuration) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>())
                 .ConfigureAppConfiguration(x => x.AddConfiguration(configuration))
-                .ConfigureWebHostDefaults(c => c.UseStartup<Startup>())
-                .UseNServiceBus(c =>
+                .UseNServiceBus(ctx =>
                 {
                     var endpointConfiguration = new EndpointConfiguration(Program.AppName);
                     endpointConfiguration.PurgeOnStartup(true);
@@ -57,11 +57,13 @@ namespace Store.ECommerce.Core
                     {
                         var routing = transport.Routing();
                         routing.RouteToEndpoint(typeof(Messages.Commands.SubmitOrder).Assembly, "Store.Messages.Commands", "Store.Sales");
+                    }, error =>
+                    {
+                        ServiceBusState = HealthCheckResult.Unhealthy("Critical error on endpoint", error);
                     });
 
                     return endpointConfiguration;
                 })
-                .ConfigureServices(sp => sp.AddSingleton<IHostedService>(new ProceedIfRabbitMqIsAlive("rabbitmq")))
                 .UseSerilog();
 
         static IConfiguration GetConfiguration()
