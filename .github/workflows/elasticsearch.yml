@@ -1,4 +1,4 @@
-name: elaticsearch
+name: elasticsearch
 
 on:
   workflow_dispatch:
