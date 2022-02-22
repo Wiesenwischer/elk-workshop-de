@@ -1,5 +1,4 @@
-﻿// Dummy change to test build pipeline
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using NServiceBus;
 using Store.Messages.Events;
 using Store.Messages.RequestResponse;
