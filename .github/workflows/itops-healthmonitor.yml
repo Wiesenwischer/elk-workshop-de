@@ -1,0 +1,51 @@
+name: itops-healthmonitor
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - feature/build-pipeline
+
+    paths:
+    - src/ITOps.HealthMonitor/**
+    - .github/workflows/itops-healthmonitor.yml
+  
+  pull_request:
+    branches:
+    - main
+
+    paths:
+    - src/ITOps.HealthMonitor/**
+    - .github/workflows/itops-healthmonitor.yml
+
+env:
+  SERVICE: healthchecks
+  IMAGE: healthchecks
+
+jobs:
+
+  BuildContainersForPR_Linux:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - uses: ./.github/workflows/composite/build
+      with:
+        service: ${{ env.SERVICE }}
+        registry_endpoint: ${{ secrets.REGISTRY_ENDPOINT }}
+
+  BuildLinux:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'pull_request' }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - uses: ./.github/workflows/composite/build-push
+      with:
+        service: ${{ env.SERVICE }}
+        registry_host: ${{ secrets.REGISTRY_HOST }}
+        registry_endpoint: ${{ secrets.REGISTRY_ENDPOINT }}
+        image_name: ${{ env.IMAGE }}
+        registry_username: ${{ secrets.USERNAME }}
+        registry_password: ${{ secrets.PASSWORD }}
