@@ -15,7 +15,8 @@ namespace Store.ECommerce.Core
         {
             services.AddHealthChecks()
                 .AddCheck("self", () => HealthCheckResult.Healthy(), new[] { "liveness" })
-                .AddCheck("servicebus", () => Program.ServiceBusState, new[] { "messaging", "nservicebus" });
+                .AddCheck("servicebus", () => Program.ServiceBusState, new[] { "messaging", "nservicebus" })
+                .AddSignalRHub($"http://localhost{OrdersHub.Url}", "orders-hub", tags: new string[] { "messaging", "signalr" });
 
             services.AddSingleton<IHostedService>(new ProceedIfRabbitMqIsAlive("rabbitmq"));
 
@@ -34,7 +35,7 @@ namespace Store.ECommerce.Core
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHub<OrdersHub>("/ordershub");
+                endpoints.MapHub<OrdersHub>(OrdersHub.Url);
                 endpoints.MapControllers();
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 

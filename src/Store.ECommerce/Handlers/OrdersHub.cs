@@ -7,6 +7,8 @@ using Store.Messages.Commands;
 
 public class OrdersHub : Hub
 {
+    public const string Url = "/ordershub";
+
     private static int orderNumber;
     private IMessageSession messageSession;
 
