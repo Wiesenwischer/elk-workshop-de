@@ -10,19 +10,38 @@ using Serilog.Extensions.Logging;
 
 namespace Store.Operations
 {
+    using System;
+
     class Program
     {
         const string AppName = "Store.Operations";
 
-        public static void Main(string[] args)
+        public static int Main(string[] args)
         {
             var configuration = GetConfiguration();
             Log.Logger = configuration.CreateSerilogLogger(AppName);
             ConfigureNServiceBusLogging();
 
-            var host = CreateHostBuilder(args, configuration)
-                .Build();
-            host.Run();
+            try
+            {
+                Log.Information("Configuring web host ({ApplicationContext})...", AppName);
+                var host = CreateHostBuilder(args, configuration)
+                    .Build();
+
+                Log.Information("Starting web host ({ApplicationContext})...", AppName);
+                host.Run();
+
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Program terminated unexpectedly ({ApplicationContext})!", AppName);
+                return 1;
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
 
         static IHostBuilder CreateHostBuilder(string[] args, IConfiguration configuration)
