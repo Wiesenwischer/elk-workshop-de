@@ -2,16 +2,19 @@ version: '3.4'
 
 services:
   elasticsearch:
+    image: ${DOCKER_REGISTRY}/elk-workshop.elasticsearch
     build:
       context: elk/elasticsearch/
 
   logstash:
+    image: ${DOCKER_REGISTRY}/elk-workshop.logstash
     build:
       context: elk/logstash/
     depends_on:
       - elasticsearch
 
   kibana:
+    image: ${DOCKER_REGISTRY}/elk-workshop.kibana
     build:
       context: elk/kibana/
     depends_on:
