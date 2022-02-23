@@ -4,6 +4,8 @@ Die Implementierung des Loggings basiert dabei auf **Microsoft.Logging.Abstracti
 Zudem wird das Theme der Überwachung von Services und entsprechende Integritiätsprüfungen behandelt.
 Die Beispielanwendung verwendet dazu eine Implementierung basierend auf der Health Check Middleware von ASP.NET Corre.
 
+Dieses Repository enthält den Code für die Beispielanwendung und ist als eine Art Workshop gedacht um sich mit den genannten Technologien vetraut zu machen und erste eigene Implementierungen vornehmen zu können. Der Workshop mit Details zur Beispielanwendung und Erklärung der Implementation sind über das [Wiki](https://github.com/Wiesenwischer/elk-workshop-de/wiki) verfügbar.
+
 ## Build Status (GitHub Actions)
 
 | Image | Status | Image | Status |
