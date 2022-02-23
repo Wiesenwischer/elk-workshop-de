@@ -1,5 +1,8 @@
 # elk-workshop-de
-Eine kurze Einführung in den Elastic Stack und Nutzung vom diesem für ein zentralisiertes und strukturiertes Logging in Microservice-Architekturen.
+Eine kurze Einführung in den **Elastic Stack** und Nutzung vom diesem für ein zentralisiertes und strukturiertes Logging in Microservice-Architekturen.
+Die Implementierung des Loggings basiert dabei auf **Microsoft.Logging.Abstractions** und **Serilog**.
+Zudem wird das Theme der Überwachung von Services und entsprechende Integritiätsprüfungen behandelt.
+Die Beispielanwendung verwendet dazu eine Implementierung basierend auf der Health Check Middleware von ASP.NET Corre.
 
 ## Build Status (GitHub Actions)
 
