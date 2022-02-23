@@ -36,6 +36,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://0.0.0.0:80
+      - DiscordWebhookUrl=${DISCORD_WEBHOOK_URL}
       - HealthChecksUI__HealthChecks__0__Name=Contentmanagement server health check
       - HealthChecksUI__HealthChecks__0__Uri=http://store-contentmanagement/hc
       - HealthChecksUI__HealthChecks__1__Name=Customerrelations server health check

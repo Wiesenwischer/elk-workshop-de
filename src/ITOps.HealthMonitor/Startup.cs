@@ -20,12 +20,15 @@ namespace ITOps.HealthMonitor
 
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
-		{
-			services.AddHealthChecks()
-				.AddCheck("self", () => HealthCheckResult.Healthy());
+        {
+            services.AddHealthChecks()
+                .AddCheck("self", () => HealthCheckResult.Healthy());
 
 			services
-				.AddHealthChecksUI()
+				.AddHealthChecksUI(settings =>
+                {
+                    settings.AddWebhookNotification("Discord", Configuration.GetValue<string>("DiscordWebhookUrl"),DiscordMessageTemplate.GetPayload(), DiscordMessageTemplate.GetRestorePayload());
+                })
                 .AddInMemoryStorage();
 
 			services.AddControllers();
