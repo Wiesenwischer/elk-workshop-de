@@ -16,4 +16,4 @@ Dieses Repository enthält den Code für die Beispielanwendung und ist als eine 
 | Operations Endpoint | [![store-operations](https://github.com/Wiesenwischer/elk-workshop-de/actions/workflows/store-operations.yml/badge.svg)](https://github.com/Wiesenwischer/elk-workshop-de/actions/workflows/store-operations.yml) | Sales Endpoint | [![store-sales](https://github.com/Wiesenwischer/elk-workshop-de/actions/workflows/store-sales.yml/badge.svg)](https://github.com/Wiesenwischer/elk-workshop-de/actions/workflows/store-sales.yml) |
 | ECommerce (MVC) | [![store-ecommerce](https://github.com/Wiesenwischer/elk-workshop-de/actions/workflows/store-ecommerce.yml/badge.svg)](https://github.com/Wiesenwischer/elk-workshop-de/actions/workflows/store-ecommerce.yml) | |  |
 
-_**Main** branch enthält den atuellen Entwicklungsstand und die entsprechenden Images sind getagged mit `:linux-main` auf [Docker Hub](https://hub.docker.com/u/maddev77)_
+_**Main** branch enthält den atuellen Entwicklungsstand und die entsprechenden Images sind getagged mit `:latest` auf [Docker Hub](https://hub.docker.com/u/maddev77)_
