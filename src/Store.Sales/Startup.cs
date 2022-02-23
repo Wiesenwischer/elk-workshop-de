@@ -24,7 +24,8 @@ namespace Store.Sales
             services.AddHealthChecks()
                 .AddCheck("self", () => HealthCheckResult.Healthy(), new[] { "liveness" })
                 .AddCheck("servicebus", () => Program.ServiceBusState, new[] { "messaging", "nservicebus" })
-                .AddRabbitMQ(name: "rabbit-mq", rabbitConnectionString: "amqp://guest:guest@rabbitmq:5672", tags: new[] { "messaging", "rabbit-mq" });
+                .AddRabbitMQ(name: "rabbit-mq", rabbitConnectionString: "amqp://guest:guest@rabbitmq:5672", tags: new[] { "messaging", "rabbit-mq" })
+                .AddCheck<PingHealthCheck>("e-commerce");
 
             services.AddSingleton<IHostedService>(new ProceedIfRabbitMqIsAlive("rabbitmq"));
         }
