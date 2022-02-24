@@ -1,0 +1,22 @@
+version: "3.4"
+
+services:
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    ports:
+      - "8000:8000"
+      - "9000:9000"
+      - "9443:9433"
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: false
+      - type: volume
+        source: portainerdata
+        target: /data
+        read_only: false
+
+volumes:
+  portainerdata:
