@@ -9,6 +9,9 @@ services:
       - "9300:9300"
     volumes:
       - ./elk/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - type: volume
+        source: elasticsearch-data
+        target: /usr/share/elasticsearch/data
 
   logstash:
     environment:
@@ -74,3 +77,5 @@ services:
     ports:
       - "64876:80"
 
+volumes:
+  elasticsearch-data:
